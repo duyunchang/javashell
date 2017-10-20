@@ -5,7 +5,7 @@
  * @author dyc
  *
  */
-package com.tysx.vod.util;
+package com.tysx.vod.util.ssh2;
 
 import java.io.BufferedReader;
 
@@ -131,7 +131,7 @@ public class JSchShellUtil {
 				System.out.println("连接已断开");
 				return ;
 			}
-	    	outputStream.write((cmd+" \r\n").getBytes());
+	    	outputStream.write((cmd+" "+System.getProperty("line.separator")).getBytes());
 			outputStream.flush();
 			
 		} catch (Exception e) {

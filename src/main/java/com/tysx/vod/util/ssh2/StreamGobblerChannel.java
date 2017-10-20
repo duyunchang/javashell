@@ -1,4 +1,4 @@
-package com.tysx.vod.util;
+package com.tysx.vod.util.ssh2;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,11 +23,9 @@ public class StreamGobblerChannel implements Callable<String> {
 
 	private CacheMap cahcheMap;
 	private String cacheKey;
-
-	private ChannelShell channel;
-
-
 	private MyWebSocket myWebSocket;
+	
+	private ChannelShell channel;
 
 	public StreamGobblerChannel(InputStream inputStrean, String path, ChannelShell channel) {
 		super();
@@ -50,7 +48,8 @@ public class StreamGobblerChannel implements Callable<String> {
 		try {
 			// 最后一个参数是缓冲区 5*1024*1024(5M) 4096
 			StringBuffer resultStringBuffer = new StringBuffer();
-
+			
+			
 			fw = new FileWriter(path, true);
 			
 			byte[] tmp = new byte[1024];
@@ -63,9 +62,7 @@ public class StreamGobblerChannel implements Callable<String> {
 
 					String str = new String(tmp, 0, i,Charset.forName("utf-8"));
 					System.out.print(str);
-					if(myWebSocket!=null){
-						myWebSocket.sendMessage(str);
-					}
+					
 					resultStringBuffer.append(str);
 					fw.write(replaceBlank(str));
 					

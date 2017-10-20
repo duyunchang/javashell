@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 import com.tysx.vod.config.CacheMap;
 import com.tysx.vod.server.MyWebSocket;
 import com.tysx.vod.util.UUIDUtil;
+import com.tysx.vod.util.WriterFile;
 
 
 public class StreamGobbler implements Callable<String> {
@@ -56,6 +57,8 @@ public class StreamGobbler implements Callable<String> {
 			br = new BufferedReader(new InputStreamReader(inputStrean,charset), 512);
 			// 写文件
 
+			WriterFile.createFile(path);
+			
 			fw = new FileWriter(path+UUIDUtil.getUUID()+".txt", true);
 
 			while ((line = br.readLine()) != null) {
