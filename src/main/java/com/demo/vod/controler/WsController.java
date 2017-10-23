@@ -24,6 +24,12 @@ public class WsController {
 		
 		return "ws";
 	}
+	@RequestMapping(value = "/ssh")
+	public String socketSsh2() {
+
+		
+		return "socketsSsh2";
+	}
 
 	@MessageMapping("/welcome")
 	@SendTo("/topic/getResponse")

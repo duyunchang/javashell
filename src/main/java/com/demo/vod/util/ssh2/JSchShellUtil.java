@@ -16,10 +16,12 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.concurrent.FutureTask;
 
+import com.demo.vod.server.MyWebSsh;
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.UserInfo;
 
 
 public class JSchShellUtil {
@@ -29,13 +31,14 @@ public class JSchShellUtil {
 	private String passwd; // 登录密码
 	private String host; // 主机IP
 	private int port; // 端口
-
+	private String logPath;//日志输出路径
+	
+	
 	private JSch jsch;
 	private Session session;
-
 	private OutputStream outputStream ;
 	
-	private String logPath;
+	private MyWebSsh myWebSsh;
 	
 	public JSchShellUtil() {
 
@@ -54,6 +57,21 @@ public class JSchShellUtil {
 		this.port = port;
 		this.logPath=logPath;
 	}
+	
+	/**
+	 * 
+	 * @param user用户名
+	 * @param passwd密码
+	 * @param host主机IP
+	 */
+	public JSchShellUtil(String user, String passwd, String host, int port,String logPath,MyWebSsh myWebSsh) {
+		this.user = user;
+		this.passwd = passwd;
+		this.host = host;
+		this.port = port;
+		this.logPath=logPath;
+		this.myWebSsh=myWebSsh;
+	}
 
 	/**
 	 * 连接到指定的IP
@@ -65,12 +83,52 @@ public class JSchShellUtil {
 		jsch = new JSch();
 		session = jsch.getSession(user, host, port);
 		session.setPassword(passwd);
+		
 		java.util.Properties config = new java.util.Properties();
 		config.put("StrictHostKeyChecking", "no");
 		session.setConfig(config);
-		session.connect();
+       
+//		UserInfo userInfo = new UserInfo() {
+//            @Override
+//            public String getPassphrase() {
+//                System.out.println("getPassphrase");
+//                return null;
+//            }
+//            @Override
+//            public String getPassword() {
+//                System.out.println("getPassword");
+//                return null;
+//            }
+//            @Override
+//            public boolean promptPassword(String s) {
+//                System.out.println("promptPassword:"+s);
+//                return false;
+//            }
+//            @Override
+//            public boolean promptPassphrase(String s) {
+//                System.out.println("promptPassphrase:"+s);
+//                return false;
+//            }
+//            @Override
+//            public boolean promptYesNo(String s) {
+//                System.out.println("promptYesNo:"+s);
+//                return true;//notice here!
+//            }
+//            @Override
+//            public void showMessage(String s) {
+//                System.out.println("showMessage:"+s);
+//            }
+//        };
+//
+//        session.setUserInfo(userInfo);
 		
 		
+		
+		
+		
+		session.connect(30*1000);
+		
+		//初始化参数
 		initChannelOutputStream();
 	}
 
@@ -112,7 +170,12 @@ public class JSchShellUtil {
 		outputStream = channel.getOutputStream();
 
         // 读取输出流
-     	StreamGobblerChannel outputGobbler =new StreamGobblerChannel(in,logPath,channel);
+//     	StreamGobblerChannel outputGobbler =new StreamGobblerChannel(in,logPath,channel);
+//     	final FutureTask<String> outputTask = new FutureTask<String>(outputGobbler);
+//     	Thread outputThread = new Thread(outputTask);
+//     	outputThread.start();
+     	
+     	StreamGobblerChannel outputGobbler =new StreamGobblerChannel(in,logPath,channel,myWebSsh);
      	final FutureTask<String> outputTask = new FutureTask<String>(outputGobbler);
      	Thread outputThread = new Thread(outputTask);
      	outputThread.start();
@@ -124,7 +187,7 @@ public class JSchShellUtil {
 	 * @throws JSchException 
 	 * @throws IOException 
 	 */
-	private void execCmd(String cmd){
+	public void execCmd(String cmd){
 		
 	     try {
 			if(!isConnect()){
@@ -144,7 +207,7 @@ public class JSchShellUtil {
 	
 
 	public static void main(String[] args) {
-		JSchShellUtil util = new JSchShellUtil("root", "tysxwg07", "192.168.23.216", 22,"C:/Users/dyc/Desktop/dddd.txt");
+		JSchShellUtil util = new JSchShellUtil("root", "tysxwg07", "192.168.23.216", 22,"C:/Users/dyc/Desktop/dss.txt");
 		//JSchShellUtil util = new JSchShellUtil(null, null, "localhost", 22,"C:/Users/dyc/Desktop/dddd.txt");
 		try {
 			util.connect();
