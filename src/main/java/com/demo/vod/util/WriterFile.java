@@ -70,7 +70,7 @@ public class WriterFile {
 		}
 	}
 
-	public synchronized boolean  existsFile(String destFileName) {
+	public  boolean  existsFile(String destFileName) {
 		File file = new File(destFileName);
 		boolean flag = false;
 		int count = 0;
